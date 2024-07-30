@@ -53,41 +53,21 @@ def load_data(path, directory):
         ond_data[index[x]] = pd.read_csv((directory + '/' + subfolders[x] + '/ond' + index [x] + '.dat'), sep='\s+', header=None, names=['time', 'ond']).set_index('time')
         
     
-    ''' Correct for dillution '''
-    
-    uv_data_dill = {}; ocd_data_dill = {}; ond_data_dill = {}
-
-    uv_data_dill = copy.deepcopy(uv_data)
-
-    for x in range(0,len(index)):
-        uv_data_dill[index[x]] = uv_data[index[x]].multiply(dillution[index[x]])
        
-        
-    ocd_data_dill = copy.deepcopy(ocd_data)
-
-    for x in range(0,len(index)):
-        ocd_data_dill[index[x]] = ocd_data[index[x]].multiply(dillution[index[x]])
-
-
-    ond_data_dill = copy.deepcopy(ond_data)
-        
-    for x in range(0,len(index)):
-        ond_data_dill[index[x]] = ond_data[index[x]].multiply(dillution[index[x]])
-        
         
     ''' Save the data to file '''
     # Create dictionary for saving all data
-    data_storage = {'index':index, 'uv_data':uv_data, 'ocd_data':ocd_data, 'ond_data':ond_data, 'uv_data_dill':uv_data_dill, 'ocd_data_dill':ocd_data_dill, 'ond_data_dill':ond_data_dill}
+    data_storage = {'index':index, 'uv_data':uv_data, 'ocd_data':ocd_data, 'ond_data':ond_data}
     pickle.dump(data_storage, open( "lcocd_raw_data.p", "wb" ))
     
     
-    return index, uv_data, ocd_data, ond_data, uv_data_dill, ocd_data_dill, ond_data_dill
+    return index, uv_data, ocd_data, ond_data
     
 #%%
 
 ''' Build dictionaries from raw data files and save them to storage file '''
 
-index, uv_data, ocd_data, ond_data, uv_data_dill, ocd_data_dill, ond_data_dill = load_data("C:/Users/tmeyn/Documents/Python/LC-OCD",'Data')
+index, uv_data, ocd_data, ond_data = load_data("C:/Users/tmeyn/Documents/Python/LC-OCD_Data_Plotter",'Data')
 
 #%%
 
@@ -97,7 +77,7 @@ data_storage = pickle.load( open( "lcocd_raw_data.p", "rb" ) )
 
 index = data_storage['index']
 uv_data = data_storage['uv_data'] ; ocd_data = data_storage['ocd_data'] ; ond_data = data_storage['ond_data']
-uv_data_dill = data_storage['uv_data_dill'] ; ocd_data_dill = data_storage['ocd_data_dill'] ; ond_data_dill = data_storage['ond_data_dill']
+# uv_data_dill = data_storage['uv_data_dill'] ; ocd_data_dill = data_storage['ocd_data_dill'] ; ond_data_dill = data_storage['ond_data_dill']
 
 #%%
 
@@ -121,7 +101,7 @@ def sample_data():
         ('01740',10), ('01741',10), ('01742',10), ('01743',5), ('01744',10), ('01745',10), ('01746',10), ('01747',10), ('01748',10), ('01749',5),
         ('01750',10), ('01751',10), ('01752',10), ('01753',10), ('01754',50), ('01755',50), ('01756',50), ('01757',10), ('01758',10), ('01759',30),
         ('01760',50), ('01761',50), ('01762',50), ('01763',10), ('01764',10), ('01765',10), ('01766',5), ('01767',10), ('01768',10), ('01769',10), 
-        ('01770',10), ('01771',10), ('01772',5), ('01773',10), ('01774',10), ('01775',10000), ('01776',10), ('01779',1000),
+        ('01770',10), ('01771',10), ('01772',5), ('01773',10), ('01774',10), ('01775',100), ('01776',100), ('01779',1000),
         ('01780',1000), ('01781',10000), ('01782',10000)
     ])
 
@@ -176,17 +156,38 @@ def sample_data():
 
 dillution, day, sample_name = sample_data()
 
+#%%
 
+''' Correct for dillution '''
+
+uv_data_dill = {}; ocd_data_dill = {}; ond_data_dill = {}
+
+uv_data_dill = copy.deepcopy(uv_data)
+
+for x in range(0,len(index)):
+    uv_data_dill[index[x]] = uv_data[index[x]].multiply(dillution[index[x]])
+   
+    
+ocd_data_dill = copy.deepcopy(ocd_data)
+
+for x in range(0,len(index)):
+    ocd_data_dill[index[x]] = ocd_data[index[x]].multiply(dillution[index[x]])
+
+
+ond_data_dill = copy.deepcopy(ond_data)
+    
+for x in range(0,len(index)):
+    ond_data_dill[index[x]] = ond_data[index[x]].multiply(dillution[index[x]])
 
 
 #%%
 
-''' INPUT PARAMETERS '''
+''' USER INPUT OF PARAMETERS AND PlOT '''
 
 # sampleID = ['01734','01734','01734']      # Do it the manual way
 
 # Get user input
-# user_input = input("Enter the samle IDs that you want to plot, separated by commas: ") # Command line version
+# user_input = input("Entexr the samle IDs that you want to plot, separated by commas: ") # Command line version
 
 user_input = easygui.enterbox("Enter the samle IDs that you want to plot, separated by commas:")  # Using a text box with a GUI
 
@@ -200,7 +201,7 @@ print(f"List of samples: {sampleID}")
 
     
 
-#%%
+
 
 ''' Do the plotting '''
 fig, axs = plt.subplots(3,figsize=(6, 10))
@@ -266,9 +267,54 @@ axs[2].set_xlim(left=20, right=120)
 #fig.suptitle(title, fontsize=16, weight='bold')
 
 plt.tight_layout()
+
 plt.show()
+
 
 ## df_uv.plot(set_ylabel("Signal [mV]"))
     
+#%%
+''' MANUAL PLOTTING OF FINAL FIGURES '''
     
+ID_to_plot = ['01687','01695','01699','01702']      # S1_aerobic
+# ID_to_plot = ['01707','01711','01720','01727']      # S1_anaerobic
+
+''' Figure setup '''
+#fig, axs = plt.figure(figsize=(6, 10))
+plt.figure(figsize=(6,6))
+
+
+# Create legend lables
+legend_labels = list()
+
+for ID in ID_to_plot:
+    if day.get(ID, -1) == -1:
+        legend_labels.append(sample_name[ID])
+
+    else:                            
+        legend_labels.append(sample_name[ID] + ' - Day ' + day[ID])
+
+
+''' OCD '''
+plt.xlabel('Time [min]', fontsize = 12, fontweight = 'bold')
+plt.ylabel('OCD-Detector Signal', fontsize = 12, fontweight = 'bold')
+
+c =  ['royalblue', 'royalblue', 'darkorange', 'darkorange']
+line_style = ['solid','dashed','solid','dashed']
+
+# Plot data from all samples contained in 'sample_ID'
+for i in range(len(ID_to_plot)):
+    ID, color, linestyle = ID_to_plot[i], c[i], line_style[i]
+    ocd_data_dill.get(ID)    
+    plt.plot(ocd_data_dill[ID], color = color, linestyle = linestyle)
     
+# Add legend
+plt.legend(labels = legend_labels, frameon=False, title="Sample ID:", alignment='left')
+
+plt.xlim(left=20, right=100)
+plt.ylim(bottom=-61, top=1500)
+
+plt.tight_layout()
+plt.rcParams.update({'font.size': 12})
+
+plt.show()
